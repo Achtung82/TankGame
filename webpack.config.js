@@ -1,5 +1,6 @@
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin-advanced');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 
 module.exports = {
@@ -31,19 +32,22 @@ module.exports = {
                 query: {
                     presets: ['env']
                 }
+            },
+            {
+                test: /\.(png|jpg|gif|svg|woff|woff2|eot|ttf)$/,
+                loader: 'file-loader',
+                options: {
+                    name: '[name].[ext]?[hash]'
+                }
             }
         ],
     },
+    mode: process.env.NODE_ENV,
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
-        new CopyWebpackPlugin([
-            {
-              from: './assets/**/**',
-              flatten: true,
-            },
-            {
-              from: 'index.html'
-            },
-          ])
+        new HtmlWebpackPlugin({
+            favicon: './assets/favicon.ico',
+            template: './index.html'
+        })
     ],
 };
