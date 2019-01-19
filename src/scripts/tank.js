@@ -1,8 +1,9 @@
 import * as PIXI from "pixi.js";
 
-const ACCELERATION = .001;
+const ACCELERATION = .005;
 const TURNACCELERATION = .1;
-const MAX_SPEED = 15;
+const MAX_SPEED = 7;
+const MAX_BACK_SPEED = -2;
 
 export default class Tank {
   constructor(game, x, y) {
@@ -18,18 +19,32 @@ export default class Tank {
     this._container.addChild( this._body );
 
     this._game.stage.addChild(this._container);
-
     this._speed = 0;
     this._turnLeft = false;
     this._turnRight = false;
+    this._accelerate = false;
+    this._deaccelerate = false;
     this._break = false;
 
     this._game.on('update', this._update.bind(this));
   }
   _update(msSinceLastFrame, currentTime) {
-
-    if(this._break) {
+    if(!this.movementCalculation(msSinceLastFrame)) {
       return;
+    }
+    const newXValue = this._container.position.x + Math.sin( this._container.rotation )  * this._speed;
+    const newYValue = this._container.position.y - Math.cos( this._container.rotation )  * this._speed;
+
+    if(!this.edgeCollission(newXValue,newYValue)) {
+      return;
+    }
+
+    this._container.position.x = newXValue;
+		this._container.position.y = newYValue;
+  }
+  movementCalculation(msSinceLastFrame) {
+    if(this._break) {
+      return false;
     }
 
     if(this._turnLeft) {
@@ -39,38 +54,59 @@ export default class Tank {
     if(this._turnRight) {
       this._container.rotation += TURNACCELERATION;
     }
+    if(this._accelerate) {
+      this._speed += ( msSinceLastFrame * ACCELERATION );
+    }
+    if(this._deaccelerate) {
+      this._speed -= ( msSinceLastFrame * ACCELERATION );
+    }
 
-    this._speed += ( msSinceLastFrame * ACCELERATION );
-
-    if( this._speed < 0 ) {
-			this._speed = 0;
+    if( this._speed < MAX_BACK_SPEED ) {
+			this._speed = MAX_BACK_SPEED;
     }
     
     if( this._speed > MAX_SPEED ) {
 			this._speed = MAX_SPEED;
     }
-    if(this._container.position.y < 35) {
-      return;
+    return true;
+  }
+  edgeCollission(newXValue, newYValue) {
+    if(newYValue < this._container.height / 2) {
+      this._speed = 0;
+      return false;
     }
 
-    this._container.position.x += Math.sin( this._container.rotation )  * this._speed;
-		this._container.position.y -= Math.cos( this._container.rotation )  * this._speed;
+    if(newXValue < this._container.width / 2) {
+      this._speed = 0;
+      return false;
+    }
+
+    if(newYValue > window.innerHeight - (this._container.height / 2)) {
+      this._speed = 0;
+      return false;
+    }
+
+    if(newXValue > window.innerWidth - (this._container.width / 2)) {
+      this._speed = 0;
+      return false;
+    }
+
+    return true;
   }
-  turnLeft() {
-    this._turnLeft = true;
+  turnLeft(value) {
+    this._turnLeft = value;
   }
-  turnRight() {
-    this._turnRight = true;
+  turnRight(value) {
+    this._turnRight = value;
   }
-  stopTurn() {
-    this._turnRight = false;
-    this._turnLeft = false;
-  }
-  break() {
-    this._break = true;
+  break(value) {
+    this._break = value;
     this._speed = 0;
   }
-  stopBreak() {
-    this._break = false;
+  accelerate(value) {
+    this._accelerate = value;
+  }
+  deaccelerate(value) {
+    this._deaccelerate = value;
   }
 }

@@ -22,7 +22,7 @@ export default class Game extends PIXI.utils.EventEmitter {
   }
   addPlayer() {
     var x = this.renderer.width * (0.1 + Math.random() * 0.8);
-    var y = this.renderer.height;
+    var y = this.renderer.height - 35;
     this.userPlayer = new Tank(this, x, y);
     this.tanks.push(this.userPlayer);
   }
@@ -32,24 +32,37 @@ export default class Game extends PIXI.utils.EventEmitter {
     const handleKeyDown = (evt) => {
       switch (evt.keyCode) {
         case 37:
-          self.userPlayer.turnLeft();
+          self.userPlayer.turnLeft(true);
+          return;
+        case 38:
+          self.userPlayer.accelerate(true);
           return;
         case 39:
-          self.userPlayer.turnRight();
+          self.userPlayer.turnRight(true);
+          return;
+        case 40:
+          self.userPlayer.deaccelerate(true);
           return;
         case 32:
-          self.userPlayer.break();
+          self.userPlayer.break(true);
           return;
       }
     }
     const handleKeyUp = (evt) => {
       switch (evt.keyCode) {
+        case 38:
+          self.userPlayer.accelerate(false);
+          return;
         case 37:
         case 39:
-          self.userPlayer.stopTurn();
+          self.userPlayer.turnLeft(false);
+          self.userPlayer.turnRight(false);
+          return;
+        case 40:
+          self.userPlayer.deaccelerate(false);
           return;
         case 32:
-          self.userPlayer.stopBreak();
+          self.userPlayer.break(false);
           return;
       }
     }
