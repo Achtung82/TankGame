@@ -1,5 +1,5 @@
-const logName = name => {
-    console.log(`Hi ${name}`);
-}
+import Game from "./game.js"
 
-logName('Bruce Wayne');
+const game = new Game( document.body );
+
+game.addPlayer();
