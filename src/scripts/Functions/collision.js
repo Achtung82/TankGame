@@ -39,3 +39,26 @@ export const unitCollision = (unit, otherUnits, excluded) => {
   }
   return false;
 }
+
+export const hitTestCircle = (c1, c2) => {
+  const r1 = (c1._container.width / 2) + 1;
+  const r2 = (c2._container.width / 2) + 1;
+  const a =  r1 + r2;
+  const x = c1._container.x - c2._container.x;
+  const y = c1._container.y - c2._container.y;
+  console.log(r1);
+  console.log(r2);
+  console.log(x);
+  console.log(y);
+
+  return a > Math.sqrt((x * x) + (y * y));
+} 
+
+export const circleCollision = (c1, circles) => {
+  for(let i =0; i < circles.length; i++) {
+    if(hitTestCircle(c1, circles[i])) {
+      return true;
+    }
+  }
+  return false;
+} 
