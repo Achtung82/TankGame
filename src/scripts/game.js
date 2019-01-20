@@ -13,36 +13,61 @@ export default class Game {
     this._element.appendChild(this.renderer.view);
     this._lastFrameTime = 0;
     this.bindInput();
-    requestAnimationFrame(this._tick.bind(this));
+    requestAnimationFrame(this.update.bind(this));
+    this.initPlayers();
   }
-  _tick(currentTime) {
+  initPlayers() {
+    this.addPlayer();
+    this.addEvilTank();
+    this.addEvilTank();
+  }
+  update(currentTime) {
     const msSinceLastFrame = currentTime - this._lastFrameTime;
     this.updatable.forEach((bullet) => {
       bullet._update(msSinceLastFrame, currentTime);
     });
     this._lastFrameTime = currentTime;
     this.renderer.render(this.stage);
-    requestAnimationFrame(this._tick.bind(this));
+    requestAnimationFrame(this.update.bind(this));
   }
   addPlayer() {
     var x = this.renderer.width * (0.1 + Math.random() * 0.8);
     var y = this.renderer.height - (35 + 250);
-    this.userPlayer = new GoodTank(this.stage, x, y);
+    this.userPlayer = new GoodTank(this, x, y);
     this.bindShot(this.userPlayer);
+    this.bindDie(this.userPlayer, () => {
+      this.addPlayer();
+    });
     this.updatable.push(this.userPlayer);
+  }
+  addEvilTank() {
+    setTimeout(()=>{
+      var x = this.renderer.width * (0.1 + Math.random() * 0.8);
+      var y = this.renderer.height - 35;
+      const evilAITank = new EvilTank(this, x, y);
+      this.bindShot(evilAITank);
+      this.bindDie(evilAITank, () => {
+        this.addEvilTank();
+      });
+      this.updatable.push(evilAITank);
+    }, Math.random() * 1400);
   }
   bindShot(tank) {
     tank.on("shoot", (container) => {
       this.shoot(container);
     });
   }
-  shoot(origin) {
-    const bullet = new Bullet(this.stage, origin.x, origin.y, origin.rotation);
-    this.updatable.push(bullet);
-    bullet.on('die', () => {
-      const index = this.updatable.indexOf(bullet)
-      this.updatable.splice(index, 1)
+  bindDie(unit, afterDie) {
+    unit.on("die", () => {
+      const index = this.updatable.indexOf(unit);
+      this.updatable.splice(index, 1);
+      afterDie && afterDie();
     });
+  }
+  shoot(origin) {
+    const bullet = new Bullet(this, origin);
+    this.updatable.push(bullet);
+    this.bindDie(bullet);
   }
   bindInput() {
     this._element.addEventListener('keydown', (e) => {handleKeyDown(e, this.userPlayer)});
