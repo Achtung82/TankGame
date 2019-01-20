@@ -109,7 +109,7 @@ export class EvilTank extends Tank {
     const newXValue = this._container.position.x + Math.sin(this._container.rotation) * this._speed;
     const newYValue = this._container.position.y - Math.cos(this._container.rotation) * this._speed;
 
-    if (edgeCollision(newXValue, newYValue, this._container)) {
+    if (edgeCollision(newXValue, newYValue, this._container, this._game.renderer.width, this._game.renderer.height)) {
       this.die();
       return;
     }
@@ -126,17 +126,30 @@ export class GoodTank extends Tank {
   constructor(game, x, y) {
     super(game, x, y, BLUE_BODY_TEX, BLUE_BARREL_TEX);
 
+    this._scoreTime = -1;
+    this._kills = 0;
+  }
+  updateScore(msSinceLastFrame) {
+    if(this._scoreTime === -1) {
+      this._scoreTime = msSinceLastFrame;
+    } else {
+      this._scoreTime += msSinceLastFrame;
+    }
   }
   _update(msSinceLastFrame, currentTime) {
+
+    this.updateScore(msSinceLastFrame);
+
     if (!this.movementCalculation(msSinceLastFrame)) {
       return;
     }
-    const newXValue = this._container.position.x + Math.sin(this._container.rotation) * this._speed;
-    const newYValue = this._container.position.y - Math.cos(this._container.rotation) * this._speed;
+    let newXValue = this._container.position.x + Math.sin(this._container.rotation) * this._speed;
+    let newYValue = this._container.position.y - Math.cos(this._container.rotation) * this._speed;
 
-    if (edgeCollision(newXValue, newYValue, this._container)) {
-      this._speed = 0;
-      return;
+    if (edgeCollision(newXValue, newYValue, this._container, this._game.renderer.width, this._game.renderer.height)) {
+      this._speed = - this._speed;
+      newXValue = this._container.position.x + Math.sin(this._container.rotation) * this._speed;
+      newYValue = this._container.position.y - Math.cos(this._container.rotation) * this._speed;
     }
     const target = unitCollision(this, this._game.updatable);
     if (target) {
@@ -148,9 +161,13 @@ export class GoodTank extends Tank {
     this._container.position.x = newXValue;
     this._container.position.y = newYValue;
   }
+  addKill() {
+    this._kills++;
+  }
   die() {
     this._container.destroy();
     this.emit("die");
+    this.emit("score", this._kills);
   }
   accelerate(value) {
     this._accelerate = value;

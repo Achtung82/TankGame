@@ -15,17 +15,35 @@ export default class Game {
     this.bindInput();
     requestAnimationFrame(this.update.bind(this));
     this.initPlayers();
+    this.initScore();
+  }
+  initScore() {
+    this._highScore = 0;
+    this._scoreDisplay = new PIXI.Text('Time: 0:00 Kills: 0',{fontFamily : 'Arial', fontSize: 24, fill : 0xff1010, align : 'center'});
+    this._highScoreDisplay = new PIXI.Text('Kills: 0',{fontFamily : 'Arial', fontSize: 24, fill : 0xff1010, align : 'center'});
+    this._highScoreDisplay.position.x = this.renderer.width;
+    this._highScoreDisplay.anchor.x = 1;
+    this.stage.addChild(this._scoreDisplay);
+    this.stage.addChild(this._highScoreDisplay);
   }
   initPlayers() {
     this.addPlayer();
     this.addEvilTank();
     this.addEvilTank();
   }
+  updateScore() {
+    const ms = this.userPlayer._scoreTime;
+    const mins = Math.floor((ms/1000/60) << 0);
+    const sec = Math.floor((ms/1000) % 60);
+    const score = `Time: ${mins}:${(sec < 10 ? '0' : '') + sec} Kills: ${this.userPlayer._kills}`;
+    this._scoreDisplay.text = score;
+  }
   update(currentTime) {
     const msSinceLastFrame = currentTime - this._lastFrameTime;
     this.updatable.forEach((bullet) => {
       bullet._update(msSinceLastFrame, currentTime);
     });
+    this.updateScore();
     this._lastFrameTime = currentTime;
     this.renderer.render(this.stage);
     requestAnimationFrame(this.update.bind(this));
@@ -37,6 +55,12 @@ export default class Game {
     this.bindShot(this.userPlayer);
     this.bindDie(this.userPlayer, () => {
       this.addPlayer();
+    });
+    this.userPlayer.on("score", (kills) => {
+      if(kills > this._highScore) {
+        this._highScore = kills;
+        this._highScoreDisplay.text = "Kills: " + kills;
+      }
     });
     this.updatable.push(this.userPlayer);
   }

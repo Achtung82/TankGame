@@ -29,12 +29,13 @@ export default class Bullet extends GameObject {
     const newXValue = this._container.position.x + Math.sin(this._container.rotation) * this._speed;
     const newYValue = this._container.position.y - Math.cos(this._container.rotation) * this._speed;
 
-    if (edgeCollision(newXValue, newYValue, this._container)) {
+    if (edgeCollision(newXValue, newYValue, this._container, this._game.renderer.width, this._game.renderer.height)) {
       this.die();
       return;
     }
     const target = unitCollision(this, this._game.updatable, this._creator);
     if (target) {
+      this._creator.addKill();
       this.die();
       target.die();
       return;
