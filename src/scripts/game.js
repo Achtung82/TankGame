@@ -1,11 +1,11 @@
 import * as PIXI from "pixi.js";
-import Tank from "./tank.js"
+import Tank from "./GameObjects/tank.js"
+import Bullet from "./GameObjects/bullet.js"
 
-export default class Game extends PIXI.utils.EventEmitter {
+export default class Game {
   constructor(element) {
-    super();
     this._element = element;
-    this.tanks = [];
+    this.bullets = [];
     this.userPlayer = null;
     this.stage = new PIXI.Container();
     this.renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight, { transparent: true }, false);
@@ -15,7 +15,11 @@ export default class Game extends PIXI.utils.EventEmitter {
     requestAnimationFrame(this._tick.bind(this));
   }
   _tick(currentTime) {
-    this.emit('update', currentTime - this._lastFrameTime, currentTime);
+    const msSinceLastFrame = currentTime - this._lastFrameTime;
+    this.userPlayer._update(msSinceLastFrame, currentTime);
+    this.bullets.forEach((bullet) => {
+      bullet._update(msSinceLastFrame, currentTime);
+    });
     this._lastFrameTime = currentTime;
     this.renderer.render(this.stage);
     requestAnimationFrame(this._tick.bind(this));
@@ -24,13 +28,23 @@ export default class Game extends PIXI.utils.EventEmitter {
     var x = this.renderer.width * (0.1 + Math.random() * 0.8);
     var y = this.renderer.height - 35;
     this.userPlayer = new Tank(this, x, y);
-    this.tanks.push(this.userPlayer);
+  }
+  shoot(origin) {
+    const bullet = new Bullet(this, origin.x, origin.y, origin.rotation);
+    this.bullets.push(bullet);
+    bullet.on('die', () => {
+      const index = this.bullets.indexOf(bullet)
+      this.bullets.splice(index, 1)
+    });
   }
   bindInput() {
     var self = this;
 
     const handleKeyDown = (evt) => {
       switch (evt.keyCode) {
+        case 17:
+          self.userPlayer.break(true);
+          return;
         case 37:
           self.userPlayer.turnLeft(true);
           return;
@@ -44,12 +58,15 @@ export default class Game extends PIXI.utils.EventEmitter {
           self.userPlayer.deaccelerate(true);
           return;
         case 32:
-          self.userPlayer.break(true);
+          self.userPlayer.shoot();
           return;
       }
     }
     const handleKeyUp = (evt) => {
       switch (evt.keyCode) {
+        case 17:
+          self.userPlayer.break(false);
+          return;
         case 38:
           self.userPlayer.accelerate(false);
           return;
@@ -60,9 +77,6 @@ export default class Game extends PIXI.utils.EventEmitter {
           return;
         case 40:
           self.userPlayer.deaccelerate(false);
-          return;
-        case 32:
-          self.userPlayer.break(false);
           return;
       }
     }
