@@ -1,9 +1,9 @@
-import {Container, Sprite} from "pixi.js";
+import {Container, Sprite, Texture} from "pixi.js";
 import {edgeCollision, unitCollision} from "../Functions/collision";
 import GameObject from "./gameobject.js"
 
 const SPEED = 12;
-const bulletTex = PIXI.Texture.fromImage('../assets/bulletBlue.png');
+const bulletTex = Texture.fromImage('../assets/bulletBlue.png');
 
 export default class Bullet extends GameObject {
   constructor(game, creator) {

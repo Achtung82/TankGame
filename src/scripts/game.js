@@ -1,4 +1,4 @@
-import {Container, Text} from "pixi.js";
+import {Container, Text, autoDetectRenderer} from "pixi.js";
 import { GoodTank, EvilTank } from "./GameObjects/tank.js"
 import Explosion from "./GameObjects/explosion.js"
 import { handleKeyDown, handleKeyUp } from "./Functions/userinput.js"
@@ -11,7 +11,7 @@ export default class Game {
     this.explosions = [];
     this.userPlayer = null;
     this.stage = new Container();
-    this.renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight, { transparent: true }, false);
+    this.renderer = autoDetectRenderer(window.innerWidth, window.innerHeight, { transparent: true }, false);
     this._element.appendChild(this.renderer.view);
     this._lastFrameTime = 0;
     this.bindInput();
