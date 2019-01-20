@@ -1,22 +1,24 @@
 import * as PIXI from "pixi.js";
-import edgeCollision from "../Functions/collision";
+import {edgeCollision} from "../Functions/collision";
 
 const ACCELERATION = .005;
 const TURNACCELERATION = .1;
-const MAX_SPEED = 7;
+const MAX_SPEED = 5;
 const MAX_BACK_SPEED = -2;
 
-const bodyTex = PIXI.Texture.fromImage('../assets/tankBlue.png');  
-const barrelTex = PIXI.Texture.fromImage('../assets/barrelBlue.png');
+const BLUE_BODY_TEX = PIXI.Texture.fromImage('../assets/tankBlue.png');
+const BLUE_BARREL_TEX = PIXI.Texture.fromImage('../assets/barrelBlue.png');
+const GREEN_BODY_TEX = PIXI.Texture.fromImage('../assets/tankGreen.png');
+const GREEN_BARREL_TEX = PIXI.Texture.fromImage('../assets/barrelGreen.png');
 
-export default class Tank extends PIXI.utils.EventEmitter {
-  constructor(game, x, y) {
+
+export class Tank extends PIXI.utils.EventEmitter {
+  constructor(stage, x, y, bodyTex, barrelTex) {
     super();
-    this._game = game;
-
     this._container = new PIXI.Container();
     this._container.position.x = x;
     this._container.position.y = y;
+    this._container.scale.set(0.5);
 
     this._body = new PIXI.Sprite(bodyTex);
     this._body.anchor.x = 0.5;
@@ -28,7 +30,7 @@ export default class Tank extends PIXI.utils.EventEmitter {
     this._container.addChild(this._body);
     this._container.addChild(this._barrel);
 
-    this._game.stage.addChild(this._container);
+    stage.addChild(this._container);
 
     this._speed = 0;
     this._turnLeft = false;
@@ -38,21 +40,7 @@ export default class Tank extends PIXI.utils.EventEmitter {
     this._break = false;
     this._shooting = false;
   }
-  _update(msSinceLastFrame, currentTime) {
-    if (!this.movementCalculation(msSinceLastFrame)) {
-      return;
-    }
-    const newXValue = this._container.position.x + Math.sin(this._container.rotation) * this._speed;
-    const newYValue = this._container.position.y - Math.cos(this._container.rotation) * this._speed;
 
-    if (!edgeCollision(newXValue, newYValue, this._container)) {
-      this._speed = 0;
-      return;
-    }
-
-    this._container.position.x = newXValue;
-    this._container.position.y = newYValue;
-  }
   movementCalculation(msSinceLastFrame) {
     if (this._break) {
       return false;
@@ -91,12 +79,7 @@ export default class Tank extends PIXI.utils.EventEmitter {
     this._break = value;
     this._speed = 0;
   }
-  accelerate(value) {
-    this._accelerate = value;
-  }
-  deaccelerate(value) {
-    this._deaccelerate = value;
-  }
+
   shoot() {
     if (this._shooting) {
       return;
@@ -104,10 +87,61 @@ export default class Tank extends PIXI.utils.EventEmitter {
     this._barrel
     this._barrel.anchor.y = .5;
     this._shooting = true;
-    this._game.shoot(this._container);
+    this.emit("shoot", this._container);
     setTimeout(() => {
       this._barrel.anchor.y = 1;
       this._shooting = false;
     }, 500);
+  }
+}
+
+export class EvilTank extends Tank {
+  constructor(stage, x, y) {
+    super(stage, x, y, GREEN_BODY_TEX, GREEN_BARREL_TEX);
+    this._speed = MAX_SPEED * 0.75;
+  }
+  _update(msSinceLastFrame, currentTime) {
+    if (!this.movementCalculation(msSinceLastFrame)) {
+      return;
+    }
+    const newXValue = this._container.position.x + Math.sin(this._container.rotation) * this._speed;
+    const newYValue = this._container.position.y - Math.cos(this._container.rotation) * this._speed;
+
+    if (!edgeCollision(newXValue, newYValue, this._container)) {
+      this._container.destroy();
+      this.emit("die");
+      return;
+    }
+
+    this._container.position.x = newXValue;
+    this._container.position.y = newYValue;
+  }
+}
+
+export class GoodTank extends Tank {
+  constructor(stage, x, y) {
+    super(stage, x, y, BLUE_BODY_TEX, BLUE_BARREL_TEX);
+
+  }
+  _update(msSinceLastFrame, currentTime) {
+    if (!this.movementCalculation(msSinceLastFrame)) {
+      return;
+    }
+    const newXValue = this._container.position.x + Math.sin(this._container.rotation) * this._speed;
+    const newYValue = this._container.position.y - Math.cos(this._container.rotation) * this._speed;
+
+    if (!edgeCollision(newXValue, newYValue, this._container)) {
+      this._speed = 0;
+      return;
+    }
+
+    this._container.position.x = newXValue;
+    this._container.position.y = newYValue;
+  }
+  accelerate(value) {
+    this._accelerate = value;
+  }
+  deaccelerate(value) {
+    this._deaccelerate = value;
   }
 }

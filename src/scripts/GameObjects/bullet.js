@@ -1,23 +1,25 @@
 import * as PIXI from "pixi.js";
-import edgeCollision from "../Functions/collision";
+import {edgeCollision} from "../Functions/collision";
 
-const SPEED = 15;
+const SPEED = 12;
 const bulletTex = PIXI.Texture.fromImage('../assets/bulletBlue.png');
 
 export default class Bullet extends PIXI.utils.EventEmitter {
-  constructor(game, x, y, rotation) {
+  constructor(stage, x, y, rotation) {
     super();
-    this._game = game;
 
     this._container = new PIXI.Container();
     this._container.position.x = x;
     this._container.position.y = y;
+    this._container.scale.set(0.5);
     this._container.rotation = rotation;
 
     this._bullet = new PIXI.Sprite(bulletTex);
+    this._bullet.anchor.x = 0.5;
+    this._bullet.anchor.y = 0.5;
     this._container.addChild(this._bullet);
 
-    this._game.stage.addChild(this._container);
+    stage.addChild(this._container);
 
     this._speed = SPEED;
   }

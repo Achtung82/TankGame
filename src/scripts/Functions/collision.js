@@ -1,4 +1,4 @@
-export default function edgeCollision(newXValue, newYValue, container) {
+export const edgeCollision = (newXValue, newYValue, container) => {
   if (newYValue < container.height / 2) {
     return false;
   }
