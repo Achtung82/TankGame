@@ -1,5 +1,6 @@
-import * as PIXI from "pixi.js";
+import {Container, Text} from "pixi.js";
 import { GoodTank, EvilTank } from "./GameObjects/tank.js"
+import Explosion from "./GameObjects/explosion.js"
 import { handleKeyDown, handleKeyUp } from "./Functions/userinput.js"
 import Bullet from "./GameObjects/bullet.js"
 
@@ -7,8 +8,9 @@ export default class Game {
   constructor(element) {
     this._element = element;
     this.updatable = [];
+    this.explosions = [];
     this.userPlayer = null;
-    this.stage = new PIXI.Container();
+    this.stage = new Container();
     this.renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight, { transparent: true }, false);
     this._element.appendChild(this.renderer.view);
     this._lastFrameTime = 0;
@@ -19,8 +21,8 @@ export default class Game {
   }
   initScore() {
     this._highScore = 0;
-    this._scoreDisplay = new PIXI.Text('Time: 0:00 Kills: 0',{fontFamily : 'Arial', fontSize: 24, fill : 0xff1010, align : 'center'});
-    this._highScoreDisplay = new PIXI.Text('Kills: 0',{fontFamily : 'Arial', fontSize: 24, fill : 0xff1010, align : 'center'});
+    this._scoreDisplay = new Text('Time: 0:00 Kills: 0',{fontFamily : 'Arial', fontSize: 24, fill : 0xff1010, align : 'center'});
+    this._highScoreDisplay = new Text('Kills: 0',{fontFamily : 'Arial', fontSize: 24, fill : 0xff1010, align : 'center'});
     this._highScoreDisplay.position.x = this.renderer.width;
     this._highScoreDisplay.anchor.x = 1;
     this.stage.addChild(this._scoreDisplay);
@@ -43,6 +45,9 @@ export default class Game {
     this.updatable.forEach((bullet) => {
       bullet._update(msSinceLastFrame, currentTime);
     });
+    this.explosions.forEach((explosion) => {
+      explosion._update(msSinceLastFrame, currentTime);
+    });
     this.updateScore();
     this._lastFrameTime = currentTime;
     this.renderer.render(this.stage);
@@ -62,6 +67,7 @@ export default class Game {
         this._highScoreDisplay.text = "Kills: " + kills;
       }
     });
+    this.bindExplode(this.userPlayer);
     this.updatable.push(this.userPlayer);
   }
   addEvilTank() {
@@ -73,6 +79,7 @@ export default class Game {
       this.bindDie(evilAITank, () => {
         this.addEvilTank();
       });
+      this.bindExplode(evilAITank);
       this.updatable.push(evilAITank);
     }, Math.random() * 1400);
   }
@@ -88,6 +95,16 @@ export default class Game {
       afterDie && afterDie();
     });
   }
+  bindExplode(tank) {
+    tank.on("explode", (container) => {
+      const exp = new Explosion(this,container);
+      this.explosions.push(exp);
+      exp.on("die", () => {
+        const index = this.explosions.indexOf(exp);
+        this.explosions.splice(index, 1);
+      });
+    });
+  }
   shoot(origin) {
     const bullet = new Bullet(this, origin);
     this.updatable.push(bullet);
@@ -96,5 +113,10 @@ export default class Game {
   bindInput() {
     this._element.addEventListener('keydown', (e) => {handleKeyDown(e, this.userPlayer)});
     this._element.addEventListener('keyup', (e) => {handleKeyUp(e, this.userPlayer)});
+  }
+  bang(container) {
+    const explContainer = new Container();
+    explContainer.co
+    this.stage.addChild(this._bullet);
   }
 }

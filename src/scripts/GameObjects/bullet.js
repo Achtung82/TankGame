@@ -1,4 +1,4 @@
-import * as PIXI from "pixi.js";
+import {Container, Sprite} from "pixi.js";
 import {edgeCollision, unitCollision} from "../Functions/collision";
 import GameObject from "./gameobject.js"
 
@@ -10,13 +10,13 @@ export default class Bullet extends GameObject {
     super();
     this._game = game;
     this._creator = creator;
-    this._container = new PIXI.Container();
+    this._container = new Container();
     this._container.position.x = creator._container.x;
     this._container.position.y = creator._container.y;
     this._container.scale.set(0.5);
     this._container.rotation = creator._container.rotation;
 
-    this._bullet = new PIXI.Sprite(bulletTex);
+    this._bullet = new Sprite(bulletTex);
     this._bullet.anchor.x = 0.5;
     this._bullet.anchor.y = 0.5;
     this._container.addChild(this._bullet);

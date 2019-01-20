@@ -1,4 +1,4 @@
-import * as PIXI from "pixi.js";
+import {Container, Sprite} from "pixi.js";
 import { edgeCollision, unitCollision } from "../Functions/collision";
 import GameObject from "./gameobject.js"
 
@@ -17,15 +17,15 @@ export class Tank extends GameObject {
   constructor(game, x, y, bodyTex, barrelTex) {
     super();
     this._game = game;
-    this._container = new PIXI.Container();
+    this._container = new Container();
     this._container.position.x = x;
     this._container.position.y = y;
     this._container.scale.set(0.5);
 
-    this._body = new PIXI.Sprite(bodyTex);
+    this._body = new Sprite(bodyTex);
     this._body.anchor.x = 0.5;
     this._body.anchor.y = 0.5;
-    this._barrel = new PIXI.Sprite(barrelTex);
+    this._barrel = new Sprite(barrelTex);
     this._barrel.anchor.x = 0.5;
     this._barrel.anchor.y = 1;
 
@@ -110,13 +110,15 @@ export class EvilTank extends Tank {
     const newYValue = this._container.position.y - Math.cos(this._container.rotation) * this._speed;
 
     if (edgeCollision(newXValue, newYValue, this._container, this._game.renderer.width, this._game.renderer.height)) {
-      this.die();
+      this._container.destroy();
+      this.emit("die");
       return;
     }
     this._container.position.x = newXValue;
     this._container.position.y = newYValue;
   }
   die() {
+    this.emit("explode", this._container);
     this._container.destroy();
     this.emit("die");
   }
@@ -165,6 +167,7 @@ export class GoodTank extends Tank {
     this._kills++;
   }
   die() {
+    this.emit("explode", this._container);
     this._container.destroy();
     this.emit("die");
     this.emit("score", this._kills);
