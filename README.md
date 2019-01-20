@@ -1,1 +1,3 @@
 # TankGame
+
+In a land of tanks. One tank is blue. Perhaps the other tanks will be red, i havnt decided yet. Or maybe they should be spacetanks...
