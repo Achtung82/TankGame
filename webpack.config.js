@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+var CopyWebpackPlugin = require('copy-webpack-plugin');
 const webpack = require('webpack');
 
 module.exports = {
@@ -45,8 +46,11 @@ module.exports = {
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new HtmlWebpackPlugin({
-            favicon: './assets/favicon.ico',
             template: './index.html'
-        })
-    ],
+        }),
+        new CopyWebpackPlugin(
+            [
+                './assets/*'
+            ])
+    ]
 };
