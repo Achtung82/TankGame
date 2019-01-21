@@ -1,7 +1,7 @@
 import {Container, Sprite, Texture} from "pixi.js";
 import GameObject from "./gameobject.js"
 
-const oilTex = Texture.fromImage('../assets/oil.png');
+const oilTex = Texture.from(require('../../assets/oil.png'));
 
 export class Oil extends GameObject {
   constructor(game, x, y) {

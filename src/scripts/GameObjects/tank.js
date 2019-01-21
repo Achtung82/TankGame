@@ -7,10 +7,10 @@ const TURNACCELERATION = .1;
 const MAX_SPEED = 5;
 const MAX_BACK_SPEED = -2;
 
-const BLUE_BODY_TEX = Texture.fromImage('../assets/tankBlue.png');
-const BLUE_BARREL_TEX = Texture.fromImage('../assets/barrelBlue.png');
-const GREEN_BODY_TEX = Texture.fromImage('../assets/tankGreen.png');
-const GREEN_BARREL_TEX = Texture.fromImage('../assets/barrelGreen.png');
+const BLUE_BODY_TEX = Texture.from(require('../../assets/tankBlue.png'));
+const BLUE_BARREL_TEX = Texture.from(require('../../assets/barrelBlue.png'));
+const GREEN_BODY_TEX = Texture.from(require('../../assets/tankGreen.png'));
+const GREEN_BARREL_TEX = Texture.from(require('../../assets/barrelGreen.png'));
 
 
 export class Tank extends GameObject {

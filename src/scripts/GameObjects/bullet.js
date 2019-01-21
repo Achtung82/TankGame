@@ -3,7 +3,7 @@ import {edgeCollision, unitCollision, circleCollision} from "../Functions/collis
 import GameObject from "./gameobject.js"
 
 const SPEED = 12;
-const bulletTex = Texture.fromImage('../assets/bulletBlue.png');
+const bulletTex = Texture.from(require('../../assets/bulletBlue.png'));
 
 export default class Bullet extends GameObject {
   constructor(game, creator) {

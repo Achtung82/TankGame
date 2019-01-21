@@ -2,7 +2,7 @@ import { Container, Texture } from "pixi.js";
 import { Emitter } from "pixi-particles";
 import GameObject from "./gameobject.js"
 
-const partTex = Texture.fromImage('../assets/particle.png');
+const partTex = Texture.from(require('../../assets/particle.png'));
 
 export default class Explosion extends GameObject {
   constructor(game, origin) {

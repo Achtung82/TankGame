@@ -46,11 +46,8 @@ module.exports = {
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new HtmlWebpackPlugin({
+            favicon: './assets/favicon.ico',
             template: './index.html'
-        }),
-        new CopyWebpackPlugin(
-            [
-                './assets/*'
-            ])
+        })
     ]
 };
