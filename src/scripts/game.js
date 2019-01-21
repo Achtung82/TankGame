@@ -1,6 +1,7 @@
 import { Container, Text, autoDetectRenderer } from "pixi.js";
 import { GoodTank, EvilTank } from "./GameObjects/tank.js"
 import Explosion from "./GameObjects/explosion.js"
+import { circleCollision } from "./Functions/collision";
 import { Oil } from "./GameObjects/obstacles.js"
 import { handleKeyDown, handleKeyUp } from "./Functions/userinput.js"
 import Bullet from "./GameObjects/bullet.js"
@@ -71,6 +72,11 @@ export default class Game {
   addPlayer() {
     var x = this.renderer.width * (0.1 + Math.random() * 0.8);
     var y = this.renderer.height - (35 + 250);
+    if (circleCollision(x, y, 35, this.obstacles)) {
+      this.addPlayer();
+      return;
+    }
+
     this.userPlayer = new GoodTank(this, x, y);
     this.bindShot(this.userPlayer);
     this.bindDie(this.userPlayer, () => {
@@ -89,6 +95,10 @@ export default class Game {
     setTimeout(() => {
       var x = this.renderer.width * (0.1 + Math.random() * 0.8);
       var y = this.renderer.height - 35;
+      if (circleCollision(x, y, 35, this.obstacles)) {
+        this.addEvilTank();
+        return;
+      }
       const evilAITank = new EvilTank(this, x, y);
       this.bindShot(evilAITank);
       this.bindDie(evilAITank, () => {
