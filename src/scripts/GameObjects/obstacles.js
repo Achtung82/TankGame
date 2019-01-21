@@ -14,8 +14,6 @@ export class Oil extends GameObject {
     this.oilSprite.anchor.x = 0.5;
     this.oilSprite.anchor.y = 0.5;
     this._container.addChild(this.oilSprite);
-  }
-  render() {
     this._game.stage.addChild(this._container);
   }
   destroy() {

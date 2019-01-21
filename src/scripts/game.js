@@ -1,6 +1,5 @@
 import { Container, Text, autoDetectRenderer } from "pixi.js";
 import { GoodTank, EvilTank } from "./GameObjects/tank.js"
-import {circleCollision} from "./Functions/collision";
 import Explosion from "./GameObjects/explosion.js"
 import { Oil } from "./GameObjects/obstacles.js"
 import { handleKeyDown, handleKeyUp } from "./Functions/userinput.js"
@@ -24,7 +23,7 @@ export default class Game {
     this.initScore();
   }
   initObstacles() {
-    for (let i = 0; i < 1; i++) {
+    for (let i = 0; i < 4; i++) {
       this.addObstacle();
     }
   }
@@ -32,16 +31,6 @@ export default class Game {
     const newX = this.renderer.width * (0.1 + Math.random() * 0.8);
     const newY = this.renderer.width * (0.1 + Math.random() * 0.8);
     const oilObst = new Oil(this, newX, newY);
-    const delta = 50;
-    const oil2 = new Oil(this, newX + delta, newY + delta);
-    this.obstacles.push(oil2);
-    if(circleCollision(oilObst, this.obstacles)) {
-      console.log("double");
-      //oilObst.destroy();
-      //return;
-    }
-    oil2.render();
-    oilObst.render();
     this.obstacles.push(oilObst);
   }
   initScore() {
@@ -55,8 +44,9 @@ export default class Game {
   }
   initPlayers() {
     this.addPlayer();
-    this.addEvilTank();
-    this.addEvilTank();
+    for (let i = 0; i < 4; i++) {
+      this.addEvilTank();
+    }
   }
   updateScore() {
     const ms = this.userPlayer._scoreTime;
