@@ -1,23 +1,10 @@
 export const edgeCollision = (newXValue, newYValue, container, width, height) => {
   const heightRadie = (container.height / 2) + 1;
   const widthRadie = (container.width / 2) + 1;
-  if (newYValue < heightRadie) {
-    return true;
-  }
-  if (newXValue < widthRadie) {
-
-    return true;
-  }
-
-  if (newYValue > height - heightRadie) {
-    return true;
-  }
-
-  if (newXValue > width - widthRadie) {
-    return true;
-  }
-
-  return false;
+  return newYValue < heightRadie ||
+    newXValue < widthRadie ||
+    newYValue > height - heightRadie ||
+    newXValue > width - widthRadie;
 }
 
 export const unitCollision = (unit, otherUnits, excluded) => {
@@ -35,6 +22,24 @@ export const unitCollision = (unit, otherUnits, excluded) => {
       ab.y + ab.height > bb.y &&
       ab.y < bb.y + bb.height) {
       return otherUnit;
+    }
+  }
+  return false;
+}
+
+export const hitCircle = (px, py, r, c) => {
+  const cb = c._container.getBounds();
+  const r2 = (cb.width / 2);
+  const a =  r + r2;
+  const x = px - c._container.x;
+  const y = py - c._container.y;
+  return a > Math.sqrt((x * x) + (y * y));
+} 
+
+export const circleCollision = (px, py, r, circles) => {
+  for(let i =0; i < circles.length; i++) {
+    if(hitCircle(px, py, r, circles[i])) {
+      return true;
     }
   }
   return false;

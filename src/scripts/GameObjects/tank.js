@@ -1,5 +1,5 @@
 import {Container, Sprite, Texture} from "pixi.js";
-import { edgeCollision, unitCollision } from "../Functions/collision";
+import { edgeCollision, unitCollision, circleCollision } from "../Functions/collision";
 import GameObject from "./gameobject.js"
 
 const ACCELERATION = .005;
@@ -7,10 +7,10 @@ const TURNACCELERATION = .1;
 const MAX_SPEED = 5;
 const MAX_BACK_SPEED = -2;
 
-const BLUE_BODY_TEX = Texture.fromImage('../assets/tankBlue.png');
-const BLUE_BARREL_TEX = Texture.fromImage('../assets/barrelBlue.png');
-const GREEN_BODY_TEX = Texture.fromImage('../assets/tankGreen.png');
-const GREEN_BARREL_TEX = Texture.fromImage('../assets/barrelGreen.png');
+const BLUE_BODY_TEX = Texture.from(require('../../assets/tankBlue.png'));
+const BLUE_BARREL_TEX = Texture.from(require('../../assets/barrelBlue.png'));
+const GREEN_BODY_TEX = Texture.from(require('../../assets/tankGreen.png'));
+const GREEN_BARREL_TEX = Texture.from(require('../../assets/barrelGreen.png'));
 
 
 export class Tank extends GameObject {
@@ -106,14 +106,24 @@ export class EvilTank extends Tank {
     if (!this.movementCalculation(msSinceLastFrame)) {
       return;
     }
-    const newXValue = this._container.position.x + Math.sin(this._container.rotation) * this._speed;
-    const newYValue = this._container.position.y - Math.cos(this._container.rotation) * this._speed;
+    let newXValue = this._container.position.x + Math.sin(this._container.rotation) * this._speed;
+    let newYValue = this._container.position.y - Math.cos(this._container.rotation) * this._speed;
 
     if (edgeCollision(newXValue, newYValue, this._container, this._game.renderer.width, this._game.renderer.height)) {
       this._container.destroy();
       this.emit("die");
       return;
     }
+    
+    const r = this._container.getBounds().width / 2;
+    if(circleCollision(newXValue, newYValue, r, this._game.obstacles)) {
+      newXValue = this._container.position.x;
+      newYValue = this._container.position.y;
+      this.turnRight(true);
+    } else {
+      this.turnRight(false);
+    }
+
     this._container.position.x = newXValue;
     this._container.position.y = newYValue;
   }
@@ -148,11 +158,14 @@ export class GoodTank extends Tank {
     let newXValue = this._container.position.x + Math.sin(this._container.rotation) * this._speed;
     let newYValue = this._container.position.y - Math.cos(this._container.rotation) * this._speed;
 
-    if (edgeCollision(newXValue, newYValue, this._container, this._game.renderer.width, this._game.renderer.height)) {
+    const r = this._container.getBounds().width / 2;
+    if (edgeCollision(newXValue, newYValue, this._container, this._game.renderer.width, this._game.renderer.height) ||
+        circleCollision(newXValue, newYValue, r, this._game.obstacles)) {
       this._speed = - this._speed;
       newXValue = this._container.position.x + Math.sin(this._container.rotation) * this._speed;
       newYValue = this._container.position.y - Math.cos(this._container.rotation) * this._speed;
     }
+
     const target = unitCollision(this, this._game.updatable);
     if (target) {
       this.die();

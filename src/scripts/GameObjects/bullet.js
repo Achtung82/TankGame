@@ -1,9 +1,9 @@
 import {Container, Sprite, Texture} from "pixi.js";
-import {edgeCollision, unitCollision} from "../Functions/collision";
+import {edgeCollision, unitCollision, circleCollision} from "../Functions/collision";
 import GameObject from "./gameobject.js"
 
 const SPEED = 12;
-const bulletTex = Texture.fromImage('../assets/bulletBlue.png');
+const bulletTex = Texture.from(require('../../assets/bulletBlue.png'));
 
 export default class Bullet extends GameObject {
   constructor(game, creator) {
@@ -29,7 +29,8 @@ export default class Bullet extends GameObject {
     const newXValue = this._container.position.x + Math.sin(this._container.rotation) * this._speed;
     const newYValue = this._container.position.y - Math.cos(this._container.rotation) * this._speed;
 
-    if (edgeCollision(newXValue, newYValue, this._container, this._game.renderer.width, this._game.renderer.height)) {
+    if (edgeCollision(newXValue, newYValue, this._container, this._game.renderer.width, this._game.renderer.height) ||
+    circleCollision(newXValue, newYValue, 1, this._game.obstacles)) {
       this.die();
       return;
     }
